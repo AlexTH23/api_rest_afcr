@@ -12,6 +12,6 @@ app.use(express.json())
 
 //Cuando nosotros solicitemos "raiz" ahora si va a llamar a router
 //ACTUALIZACION SE LE IMPLEMENTA "JOYAS"
-app.use('/joyas',router)
+app.use('/',router)
 
 module.exports = app
