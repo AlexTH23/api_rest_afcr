@@ -29,14 +29,15 @@ function agregarJoya(req,res){
 }  //vamos al router
 
 //El next sirve para ejecutar la funcion y despues ejecutar una adicional o en la misma sintaxis ejecutar 2 funciones al mismo tiempo
-function buscarJoya(req,res,next){
+async function buscarJoya(req,res,next){
+    if(!req.body)req.body={}
     var consulta ={}
     // Se van a mandar mediante la URL y se concatena una solicitud con value
     consulta[req.params.key] = req.params.value
     //se llama la consola para saber que esta pasando
 //--------    console.log(consulta)
     //mandar a llamar al modelo, vamos a ejecutar un find y vamos a buscar a consulta
-    joyasModel.find(consulta)
+    await joyasModel.find(consulta)
     .then(joyas => {
         if(!joyas.length) return next;
         //En este req.body estamos creando una vareable que se llama joyas que va dentro de la solicitud .body y se returna el next
@@ -61,9 +62,38 @@ function mostrarJoya(req,res){
     return res.status(200).send({joyas})
 }
 
+function eliminarJoya(req,res){
+    var joyas = req.body.joyas
+    joyasModel.deleteOne(joyas[0])
+    .then(info => {
+        return res.status(200).send({mensajes:"Registro eliminado"})
+    })
+    .catch( e =>{
+        return res.status(404).send({mesaje:"Error al eliminar la informacion"})
+    })
+
+}
+
+function actualizarJoya(req, res) {
+  var joyas = req.body.joyas[0];        // Contenido restante del buscarJoya en la primera posicion del objeto
+  var update = req.body;  // Nuevo contenido del JSON
+  
+  /* UpdateOne con filtro 'joyas' y actualización en '$set: joyas' (funciona para actualizar los campos indicados dentro del JSON
+  osea el body dentro de ThinderClient) */
+  joyasModel.updateOne(joyas, { $set: update })
+    .then(info => {
+      return res.status(200).send({ mensaje: "Registro actualizado" });
+    })
+    .catch(e => {
+      return res.status(404).send({ mesaje: "Error al actualizar la informacion" });
+    });
+}
+
 module.exports = {
     buscarTodo,
     agregarJoya,
     buscarJoya,
-    mostrarJoya
+    mostrarJoya,
+    eliminarJoya,
+    actualizarJoya
 }
